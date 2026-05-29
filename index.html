@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUXOA — Votre Image Notre Exigence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    /* ─── RESET ─── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold:     #C9A96E;
+      --gold-rgb: 201, 169, 110;
+      --bg:       #030303;
+    }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      background: var(--bg);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ─── LOADING ─── */
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: #030303;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    #loading-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 48px;
+      font-weight: 300;
+      color: var(--gold);
+      letter-spacing: 0.46em;
+      text-transform: uppercase;
+      text-indent: 0.46em;
+    }
+
+    #loading-track {
+      width: 200px;
+      height: 1px;
+      background: rgba(var(--gold-rgb), 0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #loading-fill {
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      width: 0%;
+      background: var(--gold);
+      transition: width 0.12s linear;
+    }
+
+    #loading-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.4em;
+      color: rgba(var(--gold-rgb), 0.42);
+      text-transform: uppercase;
+      text-indent: 0.4em;
+    }
+
+    /* ─── LIQUID GLASS GOLD (classe partagée) ─── */
+    .liqgold {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      background: linear-gradient(145deg,
+        rgba(var(--gold-rgb), 0.30) 0%,
+        rgba(var(--gold-rgb), 0.10) 45%,
+        rgba(var(--gold-rgb), 0.22) 100%);
+      backdrop-filter: blur(18px) saturate(1.7);
+      -webkit-backdrop-filter: blur(18px) saturate(1.7);
+      border: 1px solid rgba(var(--gold-rgb), 0.55);
+      border-radius: 3px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.20),
+        inset 0 -1px 0 rgba(var(--gold-rgb), 0.18),
+        0 0 0 0.5px rgba(var(--gold-rgb), 0.28),
+        0 6px 28px rgba(var(--gold-rgb), 0.14);
+      transition: box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
+    }
+
+    /* reflet de verre en haut à gauche */
+    .liqgold::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(140deg,
+        rgba(255,255,255,0.22) 0%,
+        rgba(255,255,255,0.06) 38%,
+        transparent 55%);
+      pointer-events: none;
+      border-radius: inherit;
+    }
+
+    /* shimmer animé */
+    .liqgold::after {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: -60%;
+      width: 80%;
+      height: 220%;
+      background: linear-gradient(105deg,
+        transparent 35%,
+        rgba(255,255,255,0.12) 50%,
+        transparent 65%);
+      transform: skewX(-20deg);
+      pointer-events: none;
+      animation: glass-shimmer 5s ease-in-out infinite;
+    }
+
+    @keyframes glass-shimmer {
+      0%, 70%, 100% { left: -60%; opacity: 0; }
+      40%           { left: 120%; opacity: 1; }
+    }
+
+    .liqgold:hover {
+      border-color: rgba(var(--gold-rgb), 0.85);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.28),
+        inset 0 -1px 0 rgba(var(--gold-rgb), 0.25),
+        0 0 0 0.5px rgba(var(--gold-rgb), 0.45),
+        0 8px 36px rgba(var(--gold-rgb), 0.25);
+      background: linear-gradient(145deg,
+        rgba(var(--gold-rgb), 0.38) 0%,
+        rgba(var(--gold-rgb), 0.15) 45%,
+        rgba(var(--gold-rgb), 0.30) 100%);
+    }
+
+    /* ─── HEADER ─── */
+    #header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      z-index: 200;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    #header-brand {
+      pointer-events: auto;
+    }
+
+    #header-brand img {
+      height: 82px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 12px rgba(0,0,0,0.6));
+    }
+
+    /* SHOP bouton liquid glass gold */
+    #header-shop {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.88);
+      letter-spacing: 0.22em;
+      text-indent: 0.22em;
+      text-transform: uppercase;
+      text-decoration: none;
+      pointer-events: auto;
+      padding: 10px 24px;
+    }
+
+    #header-shop:hover { color: #fff; }
+
+    /* ─── SCROLL PROGRESS ─── */
+    #scroll-bar {
+      position: fixed;
+      right: 0; top: 0;
+      width: 2px;
+      height: 100%;
+      background: rgba(var(--gold-rgb), 0.12);
+      z-index: 100;
+    }
+
+    #scroll-bar-fill {
+      width: 100%;
+      height: 0%;
+      background: rgba(var(--gold-rgb), 0.75);
+    }
+
+    /* ─── HERO ─── */
+    #hero {
+      height: 800vh;
+      position: relative;
+    }
+
+    #hero-sticky {
+      position: sticky;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #hero-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: block;
+    }
+
+    /* Vignette cinématique */
+    #hero-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, transparent 28%, rgba(3,3,3,0.42) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ─── OVERLAYS ─── */
+    .ov {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0;
+      will-change: opacity;
+      z-index: 10;
+    }
+
+    .ts {
+      text-shadow:
+        0 0 40px rgba(0,0,0,0.9),
+        0 0 12px rgba(0,0,0,0.7),
+        0 2px 4px  rgba(0,0,0,0.5);
+    }
+
+    /* Overlay 1 · LUXOA (5%) — top centre */
+    #ov1 {
+      top: 11%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      white-space: nowrap;
+    }
+    #ov1 .t {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(60px, 8.5vw, 120px);
+      font-weight: 300;
+      letter-spacing: 0.35em;
+      text-indent: 0.35em;
+      color: rgba(var(--gold-rgb), 0.93);
+      display: block;
+    }
+
+    /* Overlay CTA — dans le ciel (haut de l'image) */
+    #ov-cta {
+      top: 16%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      white-space: nowrap;
+      pointer-events: auto;
+    }
+    #ov-cta button {
+      background: none;
+      border: none;
+      padding: 15px 46px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-indent: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.9);
+      cursor: pointer;
+    }
+
+    /* ─── NEWSLETTER ─── */
+    #newsletter {
+      min-height: 62vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 110px 40px;
+      text-align: center;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 18% 60%, rgba(var(--gold-rgb), 0.045) 0%, transparent 52%),
+        radial-gradient(ellipse at 82% 38%, rgba(var(--gold-rgb), 0.03)  0%, transparent 52%),
+        linear-gradient(to bottom, #0b0906 0%, #060403 42%, #030303 100%);
+    }
+
+    #newsletter::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23noise)' opacity='0.045'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    #newsletter h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(32px, 3.8vw, 52px);
+      font-weight: 300;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      position: relative;
+    }
+
+    #newsletter p {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.28);
+      letter-spacing: 0.12em;
+      max-width: 360px;
+      line-height: 1.9;
+      position: relative;
+    }
+
+    #nw-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      margin-top: 14px;
+      position: relative;
+    }
+
+    #nw-email {
+      width: 320px;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--gold);
+      padding: 12px 0 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 300;
+      color: #fff;
+      letter-spacing: 0.12em;
+      outline: none;
+      text-align: center;
+      transition: border-color 0.3s ease;
+    }
+
+    #nw-email::placeholder { color: rgba(255,255,255,0.22); }
+    #nw-email:focus { border-bottom-color: rgba(var(--gold-rgb), 0.95); }
+
+    #nw-btn {
+      background: none;
+      border: none;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      color: var(--gold);
+      cursor: pointer;
+      padding: 6px 0;
+      position: relative;
+      transition: opacity 0.3s ease;
+    }
+
+    #nw-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 2px; left: 0; right: 0;
+      height: 1px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.35s ease;
+    }
+
+    #nw-btn:hover { opacity: 0.82; }
+    #nw-btn:hover::after { transform: scaleX(1); }
+
+    /* ─── FOOTER ─── */
+    #footer {
+      border-top: 1px solid rgba(var(--gold-rgb), 0.14);
+      padding: 30px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    #footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--gold);
+      letter-spacing: 0.16em;
+    }
+
+    #footer-copy {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.12em;
+      text-align: center;
+    }
+
+    #footer-social {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.36);
+      letter-spacing: 0.1em;
+    }
+
+    #footer-social a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    #footer-social a:hover { color: var(--gold); }
+
+    /* ─── TESTIMONIALS ─── */
+    #testimonials {
+      background: #030303;
+      padding: 100px 0 110px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #testimonials::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(to right,
+        transparent 0%,
+        rgba(var(--gold-rgb), 0.3) 30%,
+        rgba(var(--gold-rgb), 0.3) 70%,
+        transparent 100%);
+    }
+
+    .testi-header {
+      text-align: center;
+      margin-bottom: 64px;
+      padding: 0 40px;
+    }
+
+    .testi-eyebrow {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.38em;
+      text-indent: 0.38em;
+      color: rgba(var(--gold-rgb), 0.55);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .testi-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(28px, 3.2vw, 44px);
+      font-weight: 300;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+    }
+
+    /* Marquee */
+    .marquee-row {
+      position: relative;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .marquee-row::before,
+    .marquee-row::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 120px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .marquee-row::before {
+      left: 0;
+      background: linear-gradient(to right, #030303, transparent);
+    }
+    .marquee-row::after {
+      right: 0;
+      background: linear-gradient(to left, #030303, transparent);
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 20px;
+      width: max-content;
+      animation: marquee-left 55s linear infinite;
+    }
+
+    .marquee-track.rev {
+      animation: marquee-right 50s linear infinite;
+    }
+
+    .marquee-row:hover .marquee-track {
+      animation-play-state: paused;
+    }
+
+    @keyframes marquee-left {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    @keyframes marquee-right {
+      from { transform: translateX(-50%); }
+      to   { transform: translateX(0); }
+    }
+
+    /* Card */
+    .tcard {
+      flex-shrink: 0;
+      width: 310px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(var(--gold-rgb), 0.15);
+      border-radius: 2px;
+      padding: 28px 28px 24px;
+      transition: border-color 0.35s ease, background 0.35s ease;
+      cursor: default;
+    }
+
+    .tcard:hover {
+      border-color: rgba(var(--gold-rgb), 0.4);
+      background: rgba(var(--gold-rgb), 0.04);
+    }
+
+    .tcard-stars {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 16px;
+    }
+
+    .tcard-stars span {
+      color: var(--gold);
+      font-size: 13px;
+    }
+
+    .tcard-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 16px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.65;
+      margin-bottom: 22px;
+    }
+
+    .tcard-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tcard-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(var(--gold-rgb), 0.12);
+      border: 1px solid rgba(var(--gold-rgb), 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .tcard-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      letter-spacing: 0.04em;
+    }
+
+    .tcard-role {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(var(--gold-rgb), 0.5);
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ LOADING ═══ -->
+<div id="loading">
+  <div id="loading-brand">LUXOA</div>
+  <div id="loading-track"><div id="loading-fill"></div></div>
+  <div id="loading-sub">Votre Image Notre Exigence</div>
+</div>
+
+<!-- ═══ HEADER ═══ -->
+<header id="header">
+  <div id="header-brand">
+    <img src="logo-luxoa.png" alt="LUXOA">
+  </div>
+  <a href="#newsletter" id="header-shop" class="liqgold">Shop</a>
+</header>
+
+<!-- ═══ SCROLL BAR ═══ -->
+<div id="scroll-bar"><div id="scroll-bar-fill"></div></div>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div id="hero-sticky">
+    <canvas id="hero-canvas"></canvas>
+    <div id="hero-vignette"></div>
+
+    <!-- Overlay 1 · LUXOA au début — top centre -->
+    <div class="ov ts" id="ov1"><span class="t">LUXOA</span></div>
+
+    <!-- CTA · dans le ciel (haut de l'image) -->
+    <div class="ov liqgold" id="ov-cta">
+      <button onclick="document.getElementById('newsletter').scrollIntoView({behavior:'smooth'})">
+        Découvrir nos prestations &rarr;
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ NEWSLETTER ═══ -->
+<section id="newsletter">
+  <h2>Devis sur mesure</h2>
+  <p>Soyez les premiers informés.<br>Pas de bruit. Seulement l'excellence.</p>
+  <form id="nw-form" onsubmit="return false;">
+    <input type="email" id="nw-email" placeholder="Votre adresse e-mail">
+    <button type="submit" id="nw-btn">Prestations personnalisées →</button>
+  </form>
+</section>
+
+<!-- ═══ TESTIMONIALS ═══ -->
+<section id="testimonials">
+  <div class="testi-header">
+    <span class="testi-eyebrow">Témoignages</span>
+    <h2 class="testi-title">Ils nous font confiance</h2>
+  </div>
+
+  <!-- Rangée 1 : défile vers la gauche -->
+  <div class="marquee-row">
+    <div class="marquee-track">
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Un service irréprochable. Ma veste de smoking est revenue impeccable, comme au premier jour. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">AM</div>
+          <div><div class="tcard-name">Antoine M.</div><div class="tcard-role">Paris, 8ème</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« J'ai confié ma robe de mariée à LUXOA. Le résultat dépassait toutes mes attentes. Merci infiniment. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">CR</div>
+          <div><div class="tcard-name">Camille R.</div><div class="tcard-role">Lyon, 6ème</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Chaque pièce revient dans un état parfait. Je ne confierais mon dressing à personne d'autre. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">TL</div>
+          <div><div class="tcard-name">Thomas L.</div><div class="tcard-role">Bordeaux</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Ma collection de costumes sur-mesure est entre de meilleures mains. Un savoir-faire rare. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">IF</div>
+          <div><div class="tcard-name">Isabelle F.</div><div class="tcard-role">Paris, 16ème</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Réactivité exemplaire, résultat exceptionnel. Mon manteau Hermès n'a jamais été aussi beau. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">MD</div>
+          <div><div class="tcard-name">Marc D.</div><div class="tcard-role">Neuilly-sur-Seine</div></div>
+        </div>
+      </div>
+
+      <!-- Duplicata pour boucle infinie -->
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Un service irréprochable. Ma veste de smoking est revenue impeccable, comme au premier jour. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">AM</div>
+          <div><div class="tcard-name">Antoine M.</div><div class="tcard-role">Paris, 8ème</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« J'ai confié ma robe de mariée à LUXOA. Le résultat dépassait toutes mes attentes. Merci infiniment. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">CR</div>
+          <div><div class="tcard-name">Camille R.</div><div class="tcard-role">Lyon, 6ème</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Chaque pièce revient dans un état parfait. Je ne confierais mon dressing à personne d'autre. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">TL</div>
+          <div><div class="tcard-name">Thomas L.</div><div class="tcard-role">Bordeaux</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Ma collection de costumes sur-mesure est entre de meilleures mains. Un savoir-faire rare. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">IF</div>
+          <div><div class="tcard-name">Isabelle F.</div><div class="tcard-role">Paris, 16ème</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Réactivité exemplaire, résultat exceptionnel. Mon manteau Hermès n'a jamais été aussi beau. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">MD</div>
+          <div><div class="tcard-name">Marc D.</div><div class="tcard-role">Neuilly-sur-Seine</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Rangée 2 : défile vers la droite -->
+  <div class="marquee-row">
+    <div class="marquee-track rev">
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Un soin textile d'exception. L'attention portée aux détails est tout simplement remarquable. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">SD</div>
+          <div><div class="tcard-name">Sophie D.</div><div class="tcard-role">Nice</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Ma collection de cachemires est entre de meilleures mains chez LUXOA. Un luxe abordable. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">JP</div>
+          <div><div class="tcard-name">Jean-Pierre V.</div><div class="tcard-role">Marseille</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Ponctualité, élégance, perfection. En trois mots, voilà ce que représente LUXOA pour moi. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">MB</div>
+          <div><div class="tcard-name">Marie-Claire B.</div><div class="tcard-role">Lille</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Je recommande sans hésiter. Mes vêtements de luxe sont traités avec le respect qu'ils méritent. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">NG</div>
+          <div><div class="tcard-name">Nicolas G.</div><div class="tcard-role">Cannes</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Le service 48h est une vraie promesse tenue. LUXOA a su mériter toute ma confiance. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">LT</div>
+          <div><div class="tcard-name">Lucie T.</div><div class="tcard-role">Strasbourg</div></div>
+        </div>
+      </div>
+
+      <!-- Duplicata -->
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Un soin textile d'exception. L'attention portée aux détails est tout simplement remarquable. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">SD</div>
+          <div><div class="tcard-name">Sophie D.</div><div class="tcard-role">Nice</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Ma collection de cachemires est entre de meilleures mains chez LUXOA. Un luxe abordable. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">JP</div>
+          <div><div class="tcard-name">Jean-Pierre V.</div><div class="tcard-role">Marseille</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Ponctualité, élégance, perfection. En trois mots, voilà ce que représente LUXOA pour moi. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">MB</div>
+          <div><div class="tcard-name">Marie-Claire B.</div><div class="tcard-role">Lille</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Je recommande sans hésiter. Mes vêtements de luxe sont traités avec le respect qu'ils méritent. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">NG</div>
+          <div><div class="tcard-name">Nicolas G.</div><div class="tcard-role">Cannes</div></div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="tcard-quote">« Le service 48h est une vraie promesse tenue. LUXOA a su mériter toute ma confiance. »</p>
+        <div class="tcard-author">
+          <div class="tcard-avatar">LT</div>
+          <div><div class="tcard-name">Lucie T.</div><div class="tcard-role">Strasbourg</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer id="footer">
+  <div id="footer-brand">LUXOA</div>
+  <div id="footer-copy">© 2026 LUXOA. VOTRE IMAGE NOTRE EXIGENCE</div>
+  <div id="footer-social">
+    <a href="#">Instagram</a> · <a href="#">YouTube</a>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ══════════════════════════════════════════════
+   CANVAS
+══════════════════════════════════════════════ */
+const canvas = document.getElementById('hero-canvas');
+const ctx    = canvas.getContext('2d', { alpha: false });
+
+function setCanvasSize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+setCanvasSize();
+
+/* ══════════════════════════════════════════════
+   FRAME EXTRACTION
+══════════════════════════════════════════════ */
+const frames   = [];
+let animReady  = false;
+let lastFrameI = -1;
+
+async function captureBitmap(vid, cW, cH) {
+  const vW  = vid.videoWidth;
+  const vH  = vid.videoHeight;
+  const cAR = cW / cH;
+  const vAR = vW / vH;
+  let sx = 0, sy = 0, sw = vW, sh = vH;
+  if (vAR > cAR) { sw = vH * cAR; sx = (vW - sw) / 2; }
+  else            { sh = vW / cAR; sy = (vH - sh) / 2; }
+
+  if (typeof createImageBitmap !== 'undefined') {
+    return createImageBitmap(
+      vid,
+      Math.round(sx), Math.round(sy),
+      Math.round(sw), Math.round(sh),
+      { resizeWidth: cW, resizeHeight: cH, resizeQuality: 'medium' }
+    );
+  }
+  const off = Object.assign(document.createElement('canvas'), { width: cW, height: cH });
+  off.getContext('2d').drawImage(vid, sx, sy, sw, sh, 0, 0, cW, cH);
+  return off;
+}
+
+function extractFrames() {
+  return new Promise(function(resolve, reject) {
+    const vid = document.createElement('video');
+    vid.muted       = true;
+    vid.preload     = 'metadata';
+    vid.playsInline = true;
+    vid.src         = 'luxoa-hero.mp4';
+
+    vid.addEventListener('loadedmetadata', function() {
+      const dur  = vid.duration;
+      const N    = Math.min(220, Math.ceil(dur * Math.min(26, 220 / dur)));
+      const step = dur / N;
+      const cW   = Math.min(window.innerWidth,  1280);
+      const cH   = Math.min(window.innerHeight, 720);
+
+      let idx     = 0;
+      let seeking = false;
+
+      function seekNext() {
+        if (idx >= N) { resolve(); return; }
+        seeking = true;
+        vid.currentTime = idx * step;
+      }
+
+      vid.addEventListener('seeked', async function() {
+        if (!seeking) return;
+        seeking = false;
+
+        try {
+          frames[idx] = await captureBitmap(vid, cW, cH);
+        } catch (_) {}
+
+        idx++;
+        document.getElementById('loading-fill').style.width =
+          Math.round((idx / N) * 100) + '%';
+        seekNext();
+      });
+
+      vid.addEventListener('error', reject);
+      seekNext();
+    });
+
+    vid.addEventListener('error', reject);
+  });
+}
+
+function drawFrame(p) {
+  if (!frames.length) return;
+  const i = Math.min(frames.length - 1, Math.floor(p * frames.length));
+  if (i === lastFrameI) return;
+  lastFrameI = i;
+  const f = frames[i];
+  if (!f) return;
+  ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
+}
+
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function lerp01(v, a, b)  { return clamp((v - a) / (b - a), 0, 1); }
+
+function fade(p, a, b, c, d) {
+  if (p <= a || p >= d) return 0;
+  if (p < b) return lerp01(p, a, b);
+  if (p < c) return 1;
+  return 1 - lerp01(p, c, d);
+}
+
+function setOp(id, v) { document.getElementById(id).style.opacity = v; }
+
+/* ══════════════════════════════════════════════
+   OVERLAYS
+══════════════════════════════════════════════ */
+function updateOverlays(p) {
+  /* LUXOA : apparaît au tout début 3→7%, disparaît 14→18% */
+  setOp('ov1', fade(p, 0.03, 0.07, 0.14, 0.18));
+
+  /* CTA dans le ciel : apparaît à 90→94%, reste jusqu'à la fin */
+  setOp('ov-cta', fade(p, 0.90, 0.94, 1.01, 1.01));
+}
+
+/* ══════════════════════════════════════════════
+   SCROLL HANDLER
+══════════════════════════════════════════════ */
+function heroProgress() {
+  var hero       = document.getElementById('hero');
+  var scrollable = hero.offsetHeight - window.innerHeight;
+  var scrolled   = window.scrollY - hero.offsetTop;
+  return clamp(scrolled / scrollable, 0, 1);
+}
+
+var rafPending = false;
+
+function onScroll() {
+  if (!animReady || rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(function() {
+    rafPending = false;
+    var p = heroProgress();
+    drawFrame(p);
+    updateOverlays(p);
+
+    var total = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    document.getElementById('scroll-bar-fill').style.height =
+      clamp(total, 0, 1) * 100 + '%';
+  });
+}
+
+window.addEventListener('scroll', onScroll, { passive: true });
+
+window.addEventListener('resize', function() {
+  setCanvasSize();
+  if (animReady) {
+    lastFrameI = -1;
+    drawFrame(heroProgress());
+  }
+});
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+async function init() {
+  try {
+    await extractFrames();
+  } catch (e) {
+    console.warn('[LUXOA] Extraction interrompue :', e);
+  }
+
+  lastFrameI = -1;
+  drawFrame(0);
+  animReady = true;
+
+  document.getElementById('loading-fill').style.width = '100%';
+  await new Promise(function(r) { setTimeout(r, 350); });
+
+  gsap.to('#loading', {
+    opacity: 0,
+    duration: 1.5,
+    ease: 'power2.inOut',
+    onComplete: function() {
+      document.getElementById('loading').style.display = 'none';
+    }
+  });
+
+  gsap.fromTo('#header',
+    { opacity: 0, y: -18 },
+    { opacity: 1, y: 0, duration: 1.2, delay: 0.7, ease: 'power2.out' }
+  );
+}
+
+init();
+</script>
+</body>
+</html>
