@@ -438,6 +438,35 @@
 
     #footer-social a:hover { color: var(--gold); }
 
+    /* ─── MOBILE ─── */
+    @media (max-width: 768px) {
+      #header { height: 70px; padding: 0 20px; }
+      #header-brand img { height: 54px; }
+
+      #ov1 .t { font-size: clamp(38px, 10vw, 64px); }
+
+      #ov-cta { top: 18%; }
+      #ov-cta button { padding: 13px 28px; font-size: 10px; letter-spacing: 0.14em; }
+
+      #newsletter { padding: 72px 24px; }
+      #nw-email   { width: 280px; }
+
+      #footer {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 24px 20px;
+        gap: 10px;
+      }
+
+      .tcard { width: 260px; padding: 22px 20px 18px; }
+      .tcard-quote { font-size: 14px; }
+      .marquee-row::before,
+      .marquee-row::after { width: 50px; }
+
+      .testi-header { margin-bottom: 44px; padding: 0 24px; }
+    }
+
     /* ─── TESTIMONIALS ─── */
     #testimonials {
       background: #030303;
@@ -876,6 +905,13 @@
 <script>
 gsap.registerPlugin(ScrollTrigger);
 
+/* ── Retour en haut garanti à chaque chargement / refresh ── */
+if (history.scrollRestoration) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+
+/* ── Détection mobile ── */
+const IS_MOBILE = window.innerWidth < 768;
+
 /* ══════════════════════════════════════════════
    CANVAS
 ══════════════════════════════════════════════ */
@@ -926,11 +962,15 @@ function extractFrames() {
     vid.src         = 'luxoa-hero.mp4';
 
     vid.addEventListener('loadedmetadata', function() {
-      const dur  = vid.duration;
-      const N    = Math.min(220, Math.ceil(dur * Math.min(26, 220 / dur)));
+      const dur    = vid.duration;
+      /* Mobile : 80 frames max / 480px — Desktop : 140 frames max / 960px */
+      const maxF   = IS_MOBILE ? 80  : 140;
+      const maxW   = IS_MOBILE ? 480 : 960;
+      const maxH   = IS_MOBILE ? 270 : 540;
+      const N    = Math.min(maxF, Math.ceil(dur * Math.min(maxF / dur, maxF)));
       const step = dur / N;
-      const cW   = Math.min(window.innerWidth,  1280);
-      const cH   = Math.min(window.innerHeight, 720);
+      const cW   = Math.min(window.innerWidth,  maxW);
+      const cH   = Math.min(window.innerHeight, maxH);
 
       let idx     = 0;
       let seeking = false;
