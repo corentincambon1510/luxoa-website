@@ -21,6 +21,7 @@
       /* Charte LUXOA */
       --ivory:      #FAF7F2;
       --blue-deep:  #102A43;
+      --blue-rgb:   16, 42, 67;
       --sand:       #D9C7A2;
       --soft-black: #1B1B1B;
     }
@@ -85,29 +86,19 @@
       text-indent: 0.4em;
     }
 
-    /* ─── LIQUID GLASS GOLD (classe partagée) ─── */
-    .liqgold {
+    /* ─── LIQUID GLASS (base commune) ─── */
+    .liqgold, .liqblue {
       position: relative;
       overflow: hidden;
       display: inline-block;
-      background: linear-gradient(145deg,
-        rgba(var(--gold-rgb), 0.30) 0%,
-        rgba(var(--gold-rgb), 0.10) 45%,
-        rgba(var(--gold-rgb), 0.22) 100%);
       backdrop-filter: blur(18px) saturate(1.7);
       -webkit-backdrop-filter: blur(18px) saturate(1.7);
-      border: 1px solid rgba(var(--gold-rgb), 0.55);
       border-radius: 3px;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.20),
-        inset 0 -1px 0 rgba(var(--gold-rgb), 0.18),
-        0 0 0 0.5px rgba(var(--gold-rgb), 0.28),
-        0 6px 28px rgba(var(--gold-rgb), 0.14);
       transition: box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
     }
 
     /* reflet de verre en haut à gauche */
-    .liqgold::before {
+    .liqgold::before, .liqblue::before {
       content: '';
       position: absolute;
       inset: 0;
@@ -120,7 +111,7 @@
     }
 
     /* shimmer animé */
-    .liqgold::after {
+    .liqgold::after, .liqblue::after {
       content: '';
       position: absolute;
       top: -60%;
@@ -141,6 +132,19 @@
       40%           { left: 120%; opacity: 1; }
     }
 
+    /* ─── Variante gold ─── */
+    .liqgold {
+      background: linear-gradient(145deg,
+        rgba(var(--gold-rgb), 0.30) 0%,
+        rgba(var(--gold-rgb), 0.10) 45%,
+        rgba(var(--gold-rgb), 0.22) 100%);
+      border: 1px solid rgba(var(--gold-rgb), 0.55);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.20),
+        inset 0 -1px 0 rgba(var(--gold-rgb), 0.18),
+        0 0 0 0.5px rgba(var(--gold-rgb), 0.28),
+        0 6px 28px rgba(var(--gold-rgb), 0.14);
+    }
     .liqgold:hover {
       border-color: rgba(var(--gold-rgb), 0.85);
       box-shadow:
@@ -152,6 +156,32 @@
         rgba(var(--gold-rgb), 0.38) 0%,
         rgba(var(--gold-rgb), 0.15) 45%,
         rgba(var(--gold-rgb), 0.30) 100%);
+    }
+
+    /* ─── Variante blue-deep ─── */
+    .liqblue {
+      background: linear-gradient(145deg,
+        rgba(var(--blue-rgb), 0.55) 0%,
+        rgba(var(--blue-rgb), 0.30) 45%,
+        rgba(var(--blue-rgb), 0.45) 100%);
+      border: 1px solid rgba(var(--blue-rgb), 0.70);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.18),
+        inset 0 -1px 0 rgba(var(--blue-rgb), 0.25),
+        0 0 0 0.5px rgba(var(--blue-rgb), 0.35),
+        0 6px 28px rgba(var(--blue-rgb), 0.20);
+    }
+    .liqblue:hover {
+      border-color: rgba(var(--blue-rgb), 1);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.26),
+        inset 0 -1px 0 rgba(var(--blue-rgb), 0.35),
+        0 0 0 0.5px rgba(var(--blue-rgb), 0.55),
+        0 8px 36px rgba(var(--blue-rgb), 0.35);
+      background: linear-gradient(145deg,
+        rgba(var(--blue-rgb), 0.70) 0%,
+        rgba(var(--blue-rgb), 0.42) 45%,
+        rgba(var(--blue-rgb), 0.60) 100%);
     }
 
     /* ─── HEADER ─── */
@@ -281,9 +311,9 @@
       display: block;
     }
 
-    /* Overlay CTA — dans le ciel (haut de l'image) */
+    /* Overlay CTA — en bas de l'écran, sous les voitures */
     #ov-cta {
-      top: 16%;
+      bottom: 8%;
       left: 50%;
       transform: translateX(-50%);
       text-align: center;
@@ -462,7 +492,7 @@
       #header-brand img { height: 54px; }
       #ov1 { top: 14%; }
       #ov1 .t { font-size: clamp(38px, 10vw, 64px); }
-      #ov-cta { top: 58%; }
+      #ov-cta { bottom: 8%; top: auto; }
       #ov-cta button { padding: 11px 24px; font-size: 10px; letter-spacing: 0.14em; }
       #newsletter { padding: 72px 24px; }
       #nw-email   { width: 280px; }
@@ -872,7 +902,7 @@
   <div id="header-brand">
     <img src="logo-luxoa.png" alt="LUXOA">
   </div>
-  <a href="#newsletter" id="header-shop" class="liqgold">Shop</a>
+  <a href="#newsletter" id="header-shop" class="liqblue">Shop</a>
 </header>
 
 <!-- ═══ SCROLL BAR ═══ -->
@@ -918,7 +948,7 @@
     <div class="ov" id="ov1"><span class="t">LUXOA</span></div>
 
     <!-- CTA · dans le ciel (haut de l'image) -->
-    <div class="ov liqgold" id="ov-cta">
+    <div class="ov liqblue" id="ov-cta">
       <button onclick="document.getElementById('newsletter').scrollIntoView({behavior:'smooth'})">
         Découvrir nos prestations &rarr;
       </button>
