@@ -227,12 +227,9 @@
       display: block;
     }
 
-    /* Mobile : canvas limité à 70 vh centré — plus de bandes internes */
+    /* Mobile : canvas plein écran transparent — le fond de page passe à travers */
     @media (max-width: 768px) {
-      #hero-canvas {
-        height: 70vh;
-        top: 15vh;
-      }
+      #hero-canvas { background: transparent; }
     }
 
     /* Vignette cinématique */
@@ -1067,14 +1064,11 @@ const IS_MOBILE = window.innerWidth < 768;
    CANVAS
 ══════════════════════════════════════════════ */
 const canvas = document.getElementById('hero-canvas');
-const ctx    = canvas.getContext('2d', { alpha: false });
+const ctx    = canvas.getContext('2d'); /* alpha:true → zones vides transparentes */
 
 function setCanvasSize() {
   canvas.width  = window.innerWidth;
-  /* Mobile : canvas = 70 % de la hauteur d'écran (correspond au CSS 70vh) */
-  canvas.height = IS_MOBILE
-    ? Math.round(window.innerHeight * 0.70)
-    : window.innerHeight;
+  canvas.height = window.innerHeight; /* toujours plein écran */
 }
 setCanvasSize();
 
@@ -1087,22 +1081,33 @@ let lastFrameI = -1;
 
 async function captureBitmap(vid, cW, cH) {
   const vW = vid.videoWidth, vH = vid.videoHeight;
-  /* Cover crop — mobile : cH = 70 % écran → ratio moins extrême → moins zoomé */
-  const cAR = cW / cH, vAR = vW / vH;
+  /*
+   * Mobile : on stocke un crop 16:9 (ratio natif de la vidéo).
+   * Cela montre ~80 % de la largeur vidéo — beaucoup moins zoomé.
+   * Le crop est centré. La frame est affichée centrée dans le canvas
+   * plein écran (alpha:true → fond de page visible au-dessus/dessous).
+   * Desktop : cover plein écran.
+   */
+  const targetAR = IS_MOBILE ? (vW / vH) : (cW / cH); /* 16:9 mobile / cover desktop */
+  const cAR = targetAR, vAR = vW / vH;
   let sx = 0, sy = 0, sw = vW, sh = vH;
   if (vAR > cAR) { sw = sh * cAR; sx = (vW - sw) / 2; }
   else            { sh = sw / cAR; sy = (vH - sh) / 2; }
 
-  if (!IS_MOBILE && typeof createImageBitmap !== 'undefined') {
+  /* Dimensions de stockage : mobile en 16:9 sur toute la largeur, desktop couverture */
+  const storeW = cW;
+  const storeH = IS_MOBILE ? Math.round(cW / targetAR) : cH;
+
+  if (typeof createImageBitmap !== 'undefined') {
     return createImageBitmap(
       vid,
       Math.round(sx), Math.round(sy),
       Math.round(sw), Math.round(sh),
-      { resizeWidth: cW, resizeHeight: cH, resizeQuality: 'low' }
+      { resizeWidth: storeW, resizeHeight: storeH, resizeQuality: 'high' }
     );
   }
-  const off = Object.assign(document.createElement('canvas'), { width: cW, height: cH });
-  off.getContext('2d').drawImage(vid, sx, sy, sw, sh, 0, 0, cW, cH);
+  const off = Object.assign(document.createElement('canvas'), { width: storeW, height: storeH });
+  off.getContext('2d').drawImage(vid, sx, sy, sw, sh, 0, 0, storeW, storeH);
   return off;
 }
 
@@ -1121,12 +1126,16 @@ function extractFrames() {
     vid.addEventListener('loadedmetadata', function() {
       const dur = vid.duration;
       const maxF = IS_MOBILE ? 40 : 100;
-      /* Mobile : même dimensions que le canvas JS (70 % de l'écran) */
+      /*
+       * Mobile : largeur = largeur écran (max 430 px).
+       *          hauteur passée à captureBitmap qui la calcule en 16:9.
+       * Desktop : 960×540 max.
+       */
       const maxW = IS_MOBILE
-        ? Math.min(window.innerWidth, 390)
+        ? Math.min(window.innerWidth, 430)
         : Math.min(window.innerWidth, 960);
       const maxH = IS_MOBILE
-        ? Math.round(Math.min(window.innerHeight, 844) * 0.70)
+        ? Math.round(maxW / (vid.videoWidth / vid.videoHeight)) /* ratio natif vidéo */
         : Math.min(window.innerHeight, 540);
 
       const N    = Math.min(maxF, Math.max(1, Math.ceil(dur * (maxF / dur))));
@@ -1184,8 +1193,24 @@ function drawFrame(p) {
   lastFrameI = i;
   const f = frames[i];
   if (!f) return;
-  /* Le canvas a déjà les bonnes dimensions (cover-croppé sans bandes) */
-  ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height); /* transparent hors vidéo */
+
+  if (IS_MOBILE) {
+    /*
+     * La frame est stockée en 16:9 (pleine largeur écran).
+     * On l'affiche centrée verticalement dans le canvas plein écran.
+     * Le fond de page (alpha:true) passe à travers au-dessus/dessous.
+     */
+    const fW = f.width  || canvas.width;
+    const fH = f.height || Math.round(canvas.width / 1.778);
+    const dW = canvas.width;
+    const dH = Math.round(fH * (dW / fW)); /* scale proportionnelle */
+    const dy = Math.round((canvas.height - dH) / 2); /* centre vertical */
+    ctx.drawImage(f, 0, 0, fW, fH, 0, dy, dW, dH);
+  } else {
+    ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
+  }
 }
 
 /* Affiche la première frame dès qu'elle est disponible */
