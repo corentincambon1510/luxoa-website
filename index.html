@@ -1113,17 +1113,31 @@ function extractFrames() {
   return new Promise(function(resolve, reject) {
     const vid = document.createElement('video');
     vid.muted       = true;
-    vid.preload     = 'auto';   /* bufférise plus vite = seeks plus rapides */
+    vid.preload     = 'metadata'; /* metadata only → pas de téléchargement complet */
     vid.playsInline = true;
+    vid.crossOrigin = 'anonymous';
     vid.src         = 'luxoa-hero.mp4';
+
+    /* Timeout de secours : 25 s max, puis on lance quand même le site */
+    var safetyTimer = setTimeout(function() { resolve(); }, 25000);
 
     vid.addEventListener('loadedmetadata', function() {
       const dur = vid.duration;
-      /* Mobile : 60 frames / Desktop : 100 frames (↓ vs 140) */
-      const maxF = IS_MOBILE ? 60 : 100;
-      const maxW = IS_MOBILE ? Math.min(window.innerWidth, 390) : Math.min(window.innerWidth, 960);
-      const maxH = IS_MOBILE ? window.innerHeight : Math.min(window.innerHeight, 540);
-      const N    = Math.min(maxF, Math.ceil(dur * Math.min(maxF / dur, maxF)));
+
+      /* Nombre de frames : mobile très réduit pour économiser la RAM */
+      const maxF = IS_MOBILE ? 40 : 100;
+
+      /* Desktop : 960×540 max
+         Mobile  : pleine largeur, hauteur = ratio vidéo (letterbox)
+                   → beaucoup moins de pixels qu'un canvas plein écran */
+      const maxW = IS_MOBILE
+        ? Math.min(window.innerWidth, 390)
+        : Math.min(window.innerWidth, 960);
+      const maxH = IS_MOBILE
+        ? Math.round(maxW * vid.videoHeight / vid.videoWidth) /* ratio vidéo */
+        : Math.min(window.innerHeight, 540);
+
+      const N    = Math.min(maxF, Math.max(1, Math.ceil(dur * (maxF / dur))));
       const step = dur / N;
       const cW   = maxW;
       const cH   = maxH;
@@ -1132,7 +1146,11 @@ function extractFrames() {
       let seeking = false;
 
       function seekNext() {
-        if (idx >= N) { resolve(); return; }
+        if (idx >= N) {
+          clearTimeout(safetyTimer);
+          resolve();
+          return;
+        }
         seeking = true;
         vid.currentTime = idx * step;
       }
@@ -1151,11 +1169,17 @@ function extractFrames() {
         seekNext();
       });
 
-      vid.addEventListener('error', reject);
+      vid.addEventListener('error', function() {
+        clearTimeout(safetyTimer);
+        resolve(); /* erreur vidéo → on continue sans frames */
+      });
       seekNext();
     });
 
-    vid.addEventListener('error', reject);
+    vid.addEventListener('error', function() {
+      clearTimeout(safetyTimer);
+      resolve();
+    });
   });
 }
 
@@ -1166,7 +1190,22 @@ function drawFrame(p) {
   lastFrameI = i;
   const f = frames[i];
   if (!f) return;
-  ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
+
+  if (IS_MOBILE) {
+    /* Sur mobile le frame est stocké à la taille du ratio vidéo.
+       On le centre verticalement sur le canvas plein écran. */
+    ctx.fillStyle = '#030303';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const fw = f.width  || f.videoWidth  || canvas.width;
+    const fh = f.height || f.videoHeight || canvas.height;
+    const scale = canvas.width / fw;
+    const dW = canvas.width;
+    const dH = Math.round(fh * scale);
+    const dy = Math.round((canvas.height - dH) / 2);
+    ctx.drawImage(f, 0, dy, dW, dH);
+  } else {
+    ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
+  }
 }
 
 /* ══════════════════════════════════════════════
