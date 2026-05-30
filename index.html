@@ -1073,24 +1073,32 @@ const frames   = [];
 let animReady  = false;
 let lastFrameI = -1;
 
+/* Dimensions cibles pour le rendu mobile (calculées une fois) */
+var MOB_W = 0, MOB_H = 0;
+
 async function captureBitmap(vid, cW, cH) {
   const vW = vid.videoWidth, vH = vid.videoHeight;
 
   if (IS_MOBILE) {
-    /* MOBILE — pleine largeur, letterbox vertical (beaucoup moins zoomé) */
-    const off = Object.assign(document.createElement('canvas'), { width: cW, height: cH });
-    const octx = off.getContext('2d');
-    octx.fillStyle = '#030303';
-    octx.fillRect(0, 0, cW, cH);
-    /* Scale pour remplir toute la largeur */
-    const scale = cW / vW;
-    const dW = cW, dH = Math.round(vH * scale);
-    const dy = Math.round((cH - dH) / 2);
-    octx.drawImage(vid, 0, 0, vW, vH, 0, dy, dW, dH);
+    /*
+     * MOBILE — rendu intermédiaire :
+     * La frame est stockée à la largeur de l'écran × 65 % de la hauteur.
+     * Cover-crop sur ce ratio → moins zoomé qu'un cover plein écran,
+     * mais la vidéo occupe quand même 65 % de la hauteur (pas un timbre-poste).
+     */
+    const fW = MOB_W;  /* ex. 390 px */
+    const fH = MOB_H;  /* ex. ~549 px (65 % de 844) */
+    const cAR = fW / fH;
+    const vAR = vW / vH;
+    let sx = 0, sy = 0, sw = vW, sh = vH;
+    if (vAR > cAR) { sw = sh * cAR; sx = (vW - sw) / 2; }
+    else            { sh = sw / cAR; sy = (vH - sh) / 2; }
+    const off = Object.assign(document.createElement('canvas'), { width: fW, height: fH });
+    off.getContext('2d').drawImage(vid, sx, sy, sw, sh, 0, 0, fW, fH);
     return off;
   }
 
-  /* DESKTOP — cover (remplit l'écran) */
+  /* DESKTOP — cover plein écran */
   const cAR = cW / cH, vAR = vW / vH;
   let sx = 0, sy = 0, sw = vW, sh = vH;
   if (vAR > cAR) { sw = vH * cAR; sx = (vW - sw) / 2; }
@@ -1123,19 +1131,16 @@ function extractFrames() {
 
     vid.addEventListener('loadedmetadata', function() {
       const dur = vid.duration;
-
-      /* Nombre de frames : mobile très réduit pour économiser la RAM */
       const maxF = IS_MOBILE ? 40 : 100;
 
-      /* Desktop : 960×540 max
-         Mobile  : pleine largeur, hauteur = ratio vidéo (letterbox)
-                   → beaucoup moins de pixels qu'un canvas plein écran */
-      const maxW = IS_MOBILE
-        ? Math.min(window.innerWidth, 390)
-        : Math.min(window.innerWidth, 960);
-      const maxH = IS_MOBILE
-        ? Math.round(maxW * vid.videoHeight / vid.videoWidth) /* ratio vidéo */
-        : Math.min(window.innerHeight, 540);
+      /* Mobile : frame stockée à la taille du rendu intermédiaire */
+      if (IS_MOBILE) {
+        MOB_W = Math.min(window.innerWidth, 390);
+        MOB_H = Math.round(Math.min(window.innerHeight, 844) * 0.65);
+      }
+
+      const maxW = IS_MOBILE ? MOB_W : Math.min(window.innerWidth, 960);
+      const maxH = IS_MOBILE ? MOB_H : Math.min(window.innerHeight, 540);
 
       const N    = Math.min(maxF, Math.max(1, Math.ceil(dur * (maxF / dur))));
       const step = dur / N;
@@ -1161,6 +1166,8 @@ function extractFrames() {
 
         try {
           frames[idx] = await captureBitmap(vid, cW, cH);
+          /* Affiche frame 0 immédiatement → visible avant la fin du chargement */
+          if (idx === 0) drawFirstFrameIfReady();
         } catch (_) {}
 
         idx++;
@@ -1192,19 +1199,33 @@ function drawFrame(p) {
   if (!f) return;
 
   if (IS_MOBILE) {
-    /* Sur mobile le frame est stocké à la taille du ratio vidéo.
-       On le centre verticalement sur le canvas plein écran. */
+    /*
+     * La frame est stockée à MOB_W × MOB_H (ex. 390×549).
+     * On la dessine en pleine largeur, positionnée à 18 % du haut
+     * → rendu équilibré, ni trop zoomé ni trop petit.
+     */
     ctx.fillStyle = '#030303';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const fw = f.width  || f.videoWidth  || canvas.width;
-    const fh = f.height || f.videoHeight || canvas.height;
-    const scale = canvas.width / fw;
+    const fW = f.width  || MOB_W;
+    const fH = f.height || MOB_H;
+    /* Scale pour remplir exactement la largeur du canvas */
+    const scale = canvas.width / fW;
     const dW = canvas.width;
-    const dH = Math.round(fh * scale);
-    const dy = Math.round((canvas.height - dH) / 2);
-    ctx.drawImage(f, 0, dy, dW, dH);
+    const dH = Math.round(fH * scale);
+    /* Positionner à 18 % du haut → légèrement au-dessus du centre */
+    const remainY = canvas.height - dH;
+    const dy = remainY > 0 ? Math.round(remainY * 0.18) : 0;
+    ctx.drawImage(f, 0, 0, fW, fH, 0, dy, dW, dH);
   } else {
     ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
+  }
+}
+
+/* Affiche la première frame dès qu'elle est disponible (avant la fin du chargement) */
+function drawFirstFrameIfReady() {
+  if (frames[0] && lastFrameI === -1) {
+    lastFrameI = -1;
+    drawFrame(0);
   }
 }
 
