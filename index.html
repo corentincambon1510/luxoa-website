@@ -448,14 +448,36 @@
       #header { height: 70px; padding: 0 20px; }
       #header-brand img { height: 54px; }
 
-      /* Hero moins haut + rendu pleine largeur (moins de zoom) */
-      #hero { height: 500vh; }
+      /*
+       * Hero mobile : vidéo 16:9 pleine largeur, en haut, pas de scroll.
+       * Aucune zone noire : le canvas = exactement le ratio vidéo.
+       */
+      #hero {
+        height: 56.25vw; /* 16:9 de la largeur écran */
+      }
+      #hero-sticky {
+        position: relative; /* désactive le sticky sur mobile */
+        height: 56.25vw;
+        width: 100%;
+        overflow: visible;
+      }
+      #hero-canvas {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%;
+        height: 56.25vw;
+      }
+      #hero-vignette { display: none; } /* pas de vignette sur cette petite zone */
 
-      #ov1 { top: 18%; } /* aligné avec le début du canvas (15vh) */
-      #ov1 .t { font-size: clamp(38px, 10vw, 64px); }
-
-      #ov-cta { top: 58%; }
-      #ov-cta button { padding: 13px 28px; font-size: 10px; letter-spacing: 0.14em; }
+      /* Overlays dans la zone vidéo 16:9 */
+      #ov1 {
+        top: 15%;
+      }
+      #ov1 .t { font-size: clamp(32px, 9vw, 56px); }
+      #ov-cta {
+        top: 55%;
+      }
+      #ov-cta button { padding: 11px 24px; font-size: 10px; letter-spacing: 0.14em; }
 
       #newsletter { padding: 72px 24px; }
       #nw-email   { width: 280px; }
@@ -474,6 +496,9 @@
       .marquee-row::after { width: 50px; }
 
       .testi-header { margin-bottom: 44px; padding: 0 24px; }
+
+      /* Barre de scroll : cachée sur mobile (pas de scroll héro) */
+      #scroll-bar { display: none; }
     }
 
     /* ─── MODAL RGPD ─── */
@@ -1068,7 +1093,10 @@ const ctx    = canvas.getContext('2d'); /* alpha:true → zones vides transparen
 
 function setCanvasSize() {
   canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight; /* toujours plein écran */
+  /* Mobile : canvas exactement 16:9 (= ratio vidéo, zéro bandes) */
+  canvas.height = IS_MOBILE
+    ? Math.round(window.innerWidth * 9 / 16)
+    : window.innerHeight;
 }
 setCanvasSize();
 
@@ -1194,23 +1222,8 @@ function drawFrame(p) {
   const f = frames[i];
   if (!f) return;
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height); /* transparent hors vidéo */
-
-  if (IS_MOBILE) {
-    /*
-     * La frame est stockée en 16:9 (pleine largeur écran).
-     * On l'affiche centrée verticalement dans le canvas plein écran.
-     * Le fond de page (alpha:true) passe à travers au-dessus/dessous.
-     */
-    const fW = f.width  || canvas.width;
-    const fH = f.height || Math.round(canvas.width / 1.778);
-    const dW = canvas.width;
-    const dH = Math.round(fH * (dW / fW)); /* scale proportionnelle */
-    const dy = Math.round((canvas.height - dH) / 2); /* centre vertical */
-    ctx.drawImage(f, 0, 0, fW, fH, 0, dy, dW, dH);
-  } else {
-    ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
-  }
+  /* Canvas 16:9 mobile = exactement la taille des frames → drawImage direct, zéro bandes */
+  ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
 }
 
 /* Affiche la première frame dès qu'elle est disponible */
@@ -1274,13 +1287,16 @@ function onScroll() {
   });
 }
 
-window.addEventListener('scroll', onScroll, { passive: true });
+/* Scroll animé uniquement sur desktop */
+if (!IS_MOBILE) {
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
 
 window.addEventListener('resize', function() {
   setCanvasSize();
   if (animReady) {
     lastFrameI = -1;
-    drawFrame(heroProgress());
+    drawFrame(IS_MOBILE ? 0 : heroProgress());
   }
 });
 
@@ -1297,6 +1313,12 @@ async function init() {
   lastFrameI = -1;
   drawFrame(0);
   animReady = true;
+
+  /* Mobile : overlays visibles statiquement (pas de scroll animation) */
+  if (IS_MOBILE) {
+    document.getElementById('ov1').style.opacity    = 0.9;
+    document.getElementById('ov-cta').style.opacity = 1;
+  }
 
   document.getElementById('loading-fill').style.width = '100%';
   await new Promise(function(r) { setTimeout(r, 350); });
