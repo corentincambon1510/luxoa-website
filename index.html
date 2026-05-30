@@ -443,9 +443,12 @@
       #header { height: 70px; padding: 0 20px; }
       #header-brand img { height: 54px; }
 
+      /* Hero moins haut + rendu pleine largeur (moins de zoom) */
+      #hero { height: 500vh; }
+
       #ov1 .t { font-size: clamp(38px, 10vw, 64px); }
 
-      #ov-cta { top: 18%; }
+      #ov-cta { top: 60%; }
       #ov-cta button { padding: 13px 28px; font-size: 10px; letter-spacing: 0.14em; }
 
       #newsletter { padding: 72px 24px; }
@@ -465,6 +468,88 @@
       .marquee-row::after { width: 50px; }
 
       .testi-header { margin-bottom: 44px; padding: 0 24px; }
+    }
+
+    /* ─── MODAL RGPD ─── */
+    #rgpd-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 9000;
+      display: none;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    #rgpd-modal {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9001;
+      display: none;
+      width: min(680px, 92vw);
+      max-height: 82vh;
+      overflow-y: auto;
+      background: #0c0b09;
+      border: 1px solid rgba(var(--gold-rgb), 0.25);
+      padding: 48px 44px 44px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(var(--gold-rgb),0.3) transparent;
+    }
+
+    #rgpd-modal::-webkit-scrollbar { width: 4px; }
+    #rgpd-modal::-webkit-scrollbar-thumb { background: rgba(var(--gold-rgb),0.3); border-radius: 2px; }
+
+    #rgpd-close {
+      position: absolute;
+      top: 18px; right: 22px;
+      background: none; border: none;
+      color: rgba(var(--gold-rgb), 0.6);
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s ease;
+    }
+    #rgpd-close:hover { color: var(--gold); }
+
+    #rgpd-modal h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 300;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      margin-bottom: 30px;
+    }
+
+    #rgpd-modal h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      margin: 24px 0 8px;
+    }
+
+    #rgpd-modal p, #rgpd-modal li {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.85;
+      letter-spacing: 0.04em;
+    }
+
+    #rgpd-modal ul {
+      padding-left: 16px;
+      margin-top: 6px;
+    }
+
+    #rgpd-modal li { margin-bottom: 4px; }
+
+    #rgpd-modal .rgpd-divider {
+      height: 1px;
+      background: rgba(var(--gold-rgb), 0.1);
+      margin: 28px 0 0;
     }
 
     /* ─── TESTIMONIALS ─── */
@@ -898,9 +983,66 @@
   <div id="footer-brand">LUXOA</div>
   <div id="footer-copy">© 2026 LUXOA. VOTRE IMAGE NOTRE EXIGENCE</div>
   <div id="footer-social">
-    <a href="#">Instagram</a> · <a href="#">YouTube</a>
+    <a href="#" onclick="openRgpd();return false;">Politique de confidentialité</a>
   </div>
 </footer>
+
+<!-- ═══ MODAL RGPD ═══ -->
+<div id="rgpd-overlay" onclick="closeRgpd()"></div>
+<div id="rgpd-modal" role="dialog" aria-modal="true" aria-label="Politique de confidentialité">
+  <button id="rgpd-close" onclick="closeRgpd()" aria-label="Fermer">×</button>
+
+  <h2>Politique de confidentialité</h2>
+
+  <h3>1. Responsable du traitement</h3>
+  <p>LUXOA — Nettoyage Premium<br>
+  Contact : <a href="mailto:contact@luxoa.fr" style="color:var(--gold);text-decoration:none;">contact@luxoa.fr</a></p>
+
+  <h3>2. Données collectées</h3>
+  <p>Nous collectons uniquement votre adresse e-mail lorsque vous soumettez le formulaire de contact présent sur ce site. Aucune autre donnée personnelle n'est collectée automatiquement.</p>
+
+  <h3>3. Finalité du traitement</h3>
+  <p>L'adresse e-mail collectée est utilisée exclusivement pour :</p>
+  <ul>
+    <li>L'envoi de communications commerciales relatives aux prestations LUXOA</li>
+    <li>La réponse à vos demandes de devis sur mesure</li>
+    <li>L'information sur nos nouveautés et offres exclusives</li>
+  </ul>
+
+  <h3>4. Base légale</h3>
+  <p>Le traitement de vos données repose sur votre <strong style="color:rgba(255,255,255,0.75);font-weight:400;">consentement explicite</strong> (Art. 6.1.a du RGPD), matérialisé par la soumission volontaire du formulaire.</p>
+
+  <h3>5. Durée de conservation</h3>
+  <p>Vos données sont conservées pendant <strong style="color:rgba(255,255,255,0.75);font-weight:400;">3 ans</strong> à compter de votre dernière interaction avec LUXOA. Au-delà, elles sont supprimées ou anonymisées.</p>
+
+  <h3>6. Destinataires</h3>
+  <p>Vos données sont strictement réservées à l'usage interne de LUXOA. Aucune transmission, vente ou location à des tiers n'est effectuée.</p>
+
+  <h3>7. Vos droits (RGPD)</h3>
+  <p>Conformément au Règlement Général sur la Protection des Données, vous disposez des droits suivants :</p>
+  <ul>
+    <li><strong style="color:rgba(255,255,255,0.75);font-weight:400;">Accès</strong> — obtenir une copie de vos données</li>
+    <li><strong style="color:rgba(255,255,255,0.75);font-weight:400;">Rectification</strong> — corriger des données inexactes</li>
+    <li><strong style="color:rgba(255,255,255,0.75);font-weight:400;">Effacement</strong> — demander la suppression de vos données</li>
+    <li><strong style="color:rgba(255,255,255,0.75);font-weight:400;">Portabilité</strong> — recevoir vos données dans un format structuré</li>
+    <li><strong style="color:rgba(255,255,255,0.75);font-weight:400;">Opposition</strong> — vous opposer au traitement à tout moment</li>
+    <li><strong style="color:rgba(255,255,255,0.75);font-weight:400;">Limitation</strong> — restreindre le traitement de vos données</li>
+    <li><strong style="color:rgba(255,255,255,0.75);font-weight:400;">Retrait du consentement</strong> — à tout moment, sans effet rétroactif</li>
+  </ul>
+  <p style="margin-top:10px;">Pour exercer vos droits : <a href="mailto:contact@luxoa.fr" style="color:var(--gold);text-decoration:none;">contact@luxoa.fr</a></p>
+
+  <h3>8. Cookies</h3>
+  <p>Ce site utilise uniquement des cookies techniques essentiels au bon fonctionnement. Aucun cookie publicitaire ou de traçage n'est déposé sans votre consentement.</p>
+
+  <h3>9. Sécurité</h3>
+  <p>Vos données sont hébergées sur des serveurs sécurisés (Vercel, infrastructure EU). Des mesures techniques et organisationnelles appropriées sont mises en place pour protéger vos données contre tout accès non autorisé.</p>
+
+  <h3>10. Réclamation</h3>
+  <p>Si vous estimez que vos droits ne sont pas respectés, vous pouvez introduire une réclamation auprès de la <strong style="color:rgba(255,255,255,0.75);font-weight:400;">CNIL</strong> (Commission Nationale de l'Informatique et des Libertés) : <a href="https://www.cnil.fr" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">www.cnil.fr</a></p>
+
+  <div class="rgpd-divider"></div>
+  <p style="margin-top:20px;font-size:11px;color:rgba(255,255,255,0.25);">Dernière mise à jour : mai 2026 — LUXOA Nettoyage Premium</p>
+</div>
 
 <script>
 gsap.registerPlugin(ScrollTrigger);
@@ -932,10 +1074,24 @@ let animReady  = false;
 let lastFrameI = -1;
 
 async function captureBitmap(vid, cW, cH) {
-  const vW  = vid.videoWidth;
-  const vH  = vid.videoHeight;
-  const cAR = cW / cH;
-  const vAR = vW / vH;
+  const vW = vid.videoWidth, vH = vid.videoHeight;
+
+  if (IS_MOBILE) {
+    /* MOBILE — pleine largeur, letterbox vertical (beaucoup moins zoomé) */
+    const off = Object.assign(document.createElement('canvas'), { width: cW, height: cH });
+    const octx = off.getContext('2d');
+    octx.fillStyle = '#030303';
+    octx.fillRect(0, 0, cW, cH);
+    /* Scale pour remplir toute la largeur */
+    const scale = cW / vW;
+    const dW = cW, dH = Math.round(vH * scale);
+    const dy = Math.round((cH - dH) / 2);
+    octx.drawImage(vid, 0, 0, vW, vH, 0, dy, dW, dH);
+    return off;
+  }
+
+  /* DESKTOP — cover (remplit l'écran) */
+  const cAR = cW / cH, vAR = vW / vH;
   let sx = 0, sy = 0, sw = vW, sh = vH;
   if (vAR > cAR) { sw = vH * cAR; sx = (vW - sw) / 2; }
   else            { sh = vW / cAR; sy = (vH - sh) / 2; }
@@ -945,7 +1101,7 @@ async function captureBitmap(vid, cW, cH) {
       vid,
       Math.round(sx), Math.round(sy),
       Math.round(sw), Math.round(sh),
-      { resizeWidth: cW, resizeHeight: cH, resizeQuality: 'medium' }
+      { resizeWidth: cW, resizeHeight: cH, resizeQuality: 'low' }
     );
   }
   const off = Object.assign(document.createElement('canvas'), { width: cW, height: cH });
@@ -957,20 +1113,20 @@ function extractFrames() {
   return new Promise(function(resolve, reject) {
     const vid = document.createElement('video');
     vid.muted       = true;
-    vid.preload     = 'metadata';
+    vid.preload     = 'auto';   /* bufférise plus vite = seeks plus rapides */
     vid.playsInline = true;
     vid.src         = 'luxoa-hero.mp4';
 
     vid.addEventListener('loadedmetadata', function() {
-      const dur    = vid.duration;
-      /* Mobile : 80 frames max / 480px — Desktop : 140 frames max / 960px */
-      const maxF   = IS_MOBILE ? 80  : 140;
-      const maxW   = IS_MOBILE ? 480 : 960;
-      const maxH   = IS_MOBILE ? 270 : 540;
+      const dur = vid.duration;
+      /* Mobile : 60 frames / Desktop : 100 frames (↓ vs 140) */
+      const maxF = IS_MOBILE ? 60 : 100;
+      const maxW = IS_MOBILE ? Math.min(window.innerWidth, 390) : Math.min(window.innerWidth, 960);
+      const maxH = IS_MOBILE ? window.innerHeight : Math.min(window.innerHeight, 540);
       const N    = Math.min(maxF, Math.ceil(dur * Math.min(maxF / dur, maxF)));
       const step = dur / N;
-      const cW   = Math.min(window.innerWidth,  maxW);
-      const cH   = Math.min(window.innerHeight, maxH);
+      const cW   = maxW;
+      const cH   = maxH;
 
       let idx     = 0;
       let seeking = false;
@@ -1109,6 +1265,25 @@ async function init() {
 }
 
 init();
+
+/* ══════════════════════════════════════════════
+   MODAL RGPD
+══════════════════════════════════════════════ */
+function openRgpd() {
+  document.getElementById('rgpd-overlay').style.display = 'block';
+  document.getElementById('rgpd-modal').style.display   = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRgpd() {
+  document.getElementById('rgpd-overlay').style.display = 'none';
+  document.getElementById('rgpd-modal').style.display   = 'none';
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeRgpd();
+});
 </script>
 </body>
 </html>
