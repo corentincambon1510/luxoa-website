@@ -443,45 +443,203 @@
 
     #footer-social a:hover { color: var(--gold); }
 
-    /* ─── MOBILE ─── */
+    /* ══════════════════════════════════════════════
+       HERO MOBILE — LUXOA PREMIUM MÉDITERRANÉEN
+    ══════════════════════════════════════════════ */
+    #hero-mobile { display: none; }
+
     @media (max-width: 768px) {
-      #header { height: 70px; padding: 0 20px; }
-      #header-brand img { height: 54px; }
 
-      /*
-       * Hero mobile : vidéo 16:9 pleine largeur, en haut, pas de scroll.
-       * Aucune zone noire : le canvas = exactement le ratio vidéo.
-       */
-      #hero {
-        height: 56.25vw; /* 16:9 de la largeur écran */
+      /* ── Cacher le hero scroll-driven sur mobile ── */
+      #hero        { display: none; }
+      #scroll-bar  { display: none; }
+      #header      { height: 0; opacity: 0 !important; pointer-events: none; }
+
+      /* ── Hero mobile ── */
+      #hero-mobile {
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+        background:
+          radial-gradient(ellipse at 90% 8%,  rgba(16,42,67,0.09) 0%, transparent 52%),
+          radial-gradient(ellipse at 10% 90%, rgba(217,199,162,0.45) 0%, transparent 50%),
+          linear-gradient(165deg, #FAF7F2 0%, #F3E9D6 55%, #EBE0CC 100%);
       }
-      #hero-sticky {
-        position: relative; /* désactive le sticky sur mobile */
-        height: 56.25vw;
+
+      /* Ligne supérieure dégradée */
+      #hm-top-bar {
         width: 100%;
-        overflow: visible;
+        height: 3px;
+        background: linear-gradient(to right,
+          transparent 0%, #D9C7A2 25%, #102A43 55%, #D9C7A2 80%, transparent 100%);
+        flex-shrink: 0;
       }
-      #hero-canvas {
+
+      /* Décor géométrique — arc en coin droit */
+      #hm-deco-arc {
         position: absolute;
-        top: 0; left: 0;
-        width: 100%;
-        height: 56.25vw;
+        top: -60px; right: -60px;
+        width: 240px; height: 240px;
+        border-radius: 50%;
+        border: 1px solid rgba(16,42,67,0.10);
+        pointer-events: none;
       }
-      #hero-vignette { display: none; } /* pas de vignette sur cette petite zone */
+      #hm-deco-arc::after {
+        content: '';
+        position: absolute;
+        inset: 20px;
+        border-radius: 50%;
+        border: 1px solid rgba(217,199,162,0.4);
+      }
 
-      /* Overlays dans la zone vidéo 16:9 */
-      #ov1 {
-        top: 15%;
+      /* Décor bas gauche */
+      #hm-deco-dot {
+        position: absolute;
+        bottom: 80px; left: 28px;
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: #D9C7A2;
+        pointer-events: none;
       }
-      #ov1 .t { font-size: clamp(32px, 9vw, 56px); }
-      #ov-cta {
-        top: 55%;
+      #hm-deco-dot::before {
+        content: '';
+        position: absolute;
+        top: -16px; left: -16px;
+        width: 38px; height: 38px;
+        border-radius: 50%;
+        border: 1px solid rgba(217,199,162,0.35);
       }
-      #ov-cta button { padding: 11px 24px; font-size: 10px; letter-spacing: 0.14em; }
 
+      /* Contenu principal */
+      #hm-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 44px 36px 36px;
+        gap: 0;
+        text-align: center;
+        z-index: 1;
+      }
+
+      /* Logo */
+      #hm-logo {
+        margin-bottom: 32px;
+        opacity: 0;
+      }
+      #hm-logo img {
+        height: 108px;
+        width: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 3px 10px rgba(16,42,67,0.12));
+      }
+
+      /* Divider sable */
+      #hm-rule {
+        width: 48px;
+        height: 1px;
+        background: #D9C7A2;
+        margin-bottom: 18px;
+        opacity: 0;
+        transform-origin: center;
+      }
+
+      /* Eyebrow */
+      #hm-eyebrow {
+        font-family: 'Inter', sans-serif;
+        font-size: 9px;
+        font-weight: 400;
+        letter-spacing: 0.38em;
+        text-indent: 0.38em;
+        text-transform: uppercase;
+        color: rgba(16,42,67,0.45);
+        margin-bottom: 24px;
+        opacity: 0;
+      }
+
+      /* Tagline */
+      #hm-tagline {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 12px;
+      }
+      .hml {
+        display: block;
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        font-size: clamp(34px, 9.5vw, 48px);
+        font-weight: 300;
+        color: #102A43;
+        line-height: 1.22;
+        opacity: 0;
+      }
+
+      /* Sous-tagline */
+      #hm-sub {
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        font-weight: 300;
+        letter-spacing: 0.12em;
+        color: rgba(16,42,67,0.45);
+        margin-bottom: 40px;
+        opacity: 0;
+      }
+
+      /* Bouton CTA */
+      #hm-cta {
+        display: inline-block;
+        padding: 15px 38px;
+        background: #102A43;
+        color: #FAF7F2;
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        font-weight: 400;
+        letter-spacing: 0.2em;
+        text-indent: 0.2em;
+        text-transform: uppercase;
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+        opacity: 0;
+      }
+      #hm-cta:hover {
+        background: transparent;
+        border-color: #102A43;
+        color: #102A43;
+      }
+
+      /* Pied du hero */
+      #hm-footer {
+        padding: 20px 36px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-top: 1px solid rgba(16,42,67,0.1);
+        z-index: 1;
+      }
+      #hm-footer-left {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 13px;
+        color: rgba(16,42,67,0.5);
+        letter-spacing: 0.08em;
+      }
+      #hm-footer-right {
+        font-family: 'Inter', sans-serif;
+        font-size: 8.5px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: rgba(16,42,67,0.3);
+        text-indent: 0.28em;
+      }
+
+      /* Sections suivantes — adapter fond clair si besoin */
       #newsletter { padding: 72px 24px; }
       #nw-email   { width: 280px; }
-
       #footer {
         flex-direction: column;
         align-items: center;
@@ -489,16 +647,11 @@
         padding: 24px 20px;
         gap: 10px;
       }
-
       .tcard { width: 260px; padding: 22px 20px 18px; }
       .tcard-quote { font-size: 14px; }
       .marquee-row::before,
       .marquee-row::after { width: 50px; }
-
       .testi-header { margin-bottom: 44px; padding: 0 24px; }
-
-      /* Barre de scroll : cachée sur mobile (pas de scroll héro) */
-      #scroll-bar { display: none; }
     }
 
     /* ─── MODAL RGPD ─── */
@@ -776,7 +929,37 @@
 <!-- ═══ SCROLL BAR ═══ -->
 <div id="scroll-bar"><div id="scroll-bar-fill"></div></div>
 
-<!-- ═══ HERO ═══ -->
+<!-- ═══ HERO MOBILE (premium méditerranéen, desktop masqué) ═══ -->
+<section id="hero-mobile">
+  <div id="hm-top-bar"></div>
+  <div id="hm-deco-arc"></div>
+  <div id="hm-deco-dot"></div>
+
+  <div id="hm-body">
+    <div id="hm-logo">
+      <img src="logo-luxoa.png" alt="LUXOA">
+    </div>
+
+    <div id="hm-rule"></div>
+    <div id="hm-eyebrow">Nettoyage Premium</div>
+
+    <div id="hm-tagline">
+      <span class="hml">Votre image.</span>
+      <span class="hml">Notre exigence.</span>
+    </div>
+
+    <div id="hm-sub">Service textile haut de gamme · 48h</div>
+
+    <a href="#newsletter" id="hm-cta">Devis sur mesure &rarr;</a>
+  </div>
+
+  <div id="hm-footer">
+    <span id="hm-footer-left">LUXOA</span>
+    <span id="hm-footer-right">Votre Image Notre Exigence</span>
+  </div>
+</section>
+
+<!-- ═══ HERO DESKTOP (scroll-driven, masqué sur mobile) ═══ -->
 <section id="hero">
   <div id="hero-sticky">
     <canvas id="hero-canvas"></canvas>
@@ -1304,38 +1487,45 @@ window.addEventListener('resize', function() {
    INIT
 ══════════════════════════════════════════════ */
 async function init() {
-  try {
-    await extractFrames();
-  } catch (e) {
-    console.warn('[LUXOA] Extraction interrompue :', e);
-  }
-
-  lastFrameI = -1;
-  drawFrame(0);
-  animReady = true;
-
-  /* Mobile : overlays visibles statiquement (pas de scroll animation) */
-  if (IS_MOBILE) {
-    document.getElementById('ov1').style.opacity    = 0.9;
-    document.getElementById('ov-cta').style.opacity = 1;
+  if (!IS_MOBILE) {
+    /* Desktop seulement : extraction des frames vidéo */
+    try {
+      await extractFrames();
+    } catch (e) {
+      console.warn('[LUXOA] Extraction interrompue :', e);
+    }
+    lastFrameI = -1;
+    drawFrame(0);
+    animReady = true;
   }
 
   document.getElementById('loading-fill').style.width = '100%';
-  await new Promise(function(r) { setTimeout(r, 350); });
+  await new Promise(function(r) { setTimeout(r, IS_MOBILE ? 150 : 350); });
 
   gsap.to('#loading', {
     opacity: 0,
-    duration: 1.5,
+    duration: IS_MOBILE ? 0.8 : 1.5,
     ease: 'power2.inOut',
     onComplete: function() {
       document.getElementById('loading').style.display = 'none';
+
+      if (IS_MOBILE) {
+        /* Animation d'entrée du hero mobile */
+        var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        tl.to('#hm-logo',    { opacity: 1, y: 0,  duration: 0.9, from: { y: -24 } })
+          .to('#hm-rule',    { opacity: 1, scaleX: 1, duration: 0.6, from: { scaleX: 0 } }, '-=0.4')
+          .to('#hm-eyebrow', { opacity: 1, y: 0,  duration: 0.6, from: { y: 10 }  }, '-=0.3')
+          .to('.hml',        { opacity: 1, y: 0,  duration: 0.8, stagger: 0.14, from: { y: 18 } }, '-=0.3')
+          .to('#hm-sub',     { opacity: 1, y: 0,  duration: 0.6, from: { y: 10 }  }, '-=0.4')
+          .to('#hm-cta',     { opacity: 1, y: 0,  duration: 0.7, from: { y: 14 }  }, '-=0.3');
+      } else {
+        gsap.fromTo('#header',
+          { opacity: 0, y: -18 },
+          { opacity: 1, y: 0, duration: 1.2, delay: 0.7, ease: 'power2.out' }
+        );
+      }
     }
   });
-
-  gsap.fromTo('#header',
-    { opacity: 0, y: -18 },
-    { opacity: 1, y: 0, duration: 1.2, delay: 0.7, ease: 'power2.out' }
-  );
 }
 
 init();
