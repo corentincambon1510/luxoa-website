@@ -227,6 +227,14 @@
       display: block;
     }
 
+    /* Mobile : canvas limité à 70 vh centré — plus de bandes internes */
+    @media (max-width: 768px) {
+      #hero-canvas {
+        height: 70vh;
+        top: 15vh;
+      }
+    }
+
     /* Vignette cinématique */
     #hero-vignette {
       position: absolute;
@@ -446,9 +454,10 @@
       /* Hero moins haut + rendu pleine largeur (moins de zoom) */
       #hero { height: 500vh; }
 
+      #ov1 { top: 18%; } /* aligné avec le début du canvas (15vh) */
       #ov1 .t { font-size: clamp(38px, 10vw, 64px); }
 
-      #ov-cta { top: 60%; }
+      #ov-cta { top: 58%; }
       #ov-cta button { padding: 13px 28px; font-size: 10px; letter-spacing: 0.14em; }
 
       #newsletter { padding: 72px 24px; }
@@ -1062,7 +1071,10 @@ const ctx    = canvas.getContext('2d', { alpha: false });
 
 function setCanvasSize() {
   canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
+  /* Mobile : canvas = 70 % de la hauteur d'écran (correspond au CSS 70vh) */
+  canvas.height = IS_MOBILE
+    ? Math.round(window.innerHeight * 0.70)
+    : window.innerHeight;
 }
 setCanvasSize();
 
@@ -1073,38 +1085,15 @@ const frames   = [];
 let animReady  = false;
 let lastFrameI = -1;
 
-/* Dimensions cibles pour le rendu mobile (calculées une fois) */
-var MOB_W = 0, MOB_H = 0;
-
 async function captureBitmap(vid, cW, cH) {
   const vW = vid.videoWidth, vH = vid.videoHeight;
-
-  if (IS_MOBILE) {
-    /*
-     * MOBILE — rendu intermédiaire :
-     * La frame est stockée à la largeur de l'écran × 65 % de la hauteur.
-     * Cover-crop sur ce ratio → moins zoomé qu'un cover plein écran,
-     * mais la vidéo occupe quand même 65 % de la hauteur (pas un timbre-poste).
-     */
-    const fW = MOB_W;  /* ex. 390 px */
-    const fH = MOB_H;  /* ex. ~549 px (65 % de 844) */
-    const cAR = fW / fH;
-    const vAR = vW / vH;
-    let sx = 0, sy = 0, sw = vW, sh = vH;
-    if (vAR > cAR) { sw = sh * cAR; sx = (vW - sw) / 2; }
-    else            { sh = sw / cAR; sy = (vH - sh) / 2; }
-    const off = Object.assign(document.createElement('canvas'), { width: fW, height: fH });
-    off.getContext('2d').drawImage(vid, sx, sy, sw, sh, 0, 0, fW, fH);
-    return off;
-  }
-
-  /* DESKTOP — cover plein écran */
+  /* Cover crop — mobile : cH = 70 % écran → ratio moins extrême → moins zoomé */
   const cAR = cW / cH, vAR = vW / vH;
   let sx = 0, sy = 0, sw = vW, sh = vH;
-  if (vAR > cAR) { sw = vH * cAR; sx = (vW - sw) / 2; }
-  else            { sh = vW / cAR; sy = (vH - sh) / 2; }
+  if (vAR > cAR) { sw = sh * cAR; sx = (vW - sw) / 2; }
+  else            { sh = sw / cAR; sy = (vH - sh) / 2; }
 
-  if (typeof createImageBitmap !== 'undefined') {
+  if (!IS_MOBILE && typeof createImageBitmap !== 'undefined') {
     return createImageBitmap(
       vid,
       Math.round(sx), Math.round(sy),
@@ -1132,15 +1121,13 @@ function extractFrames() {
     vid.addEventListener('loadedmetadata', function() {
       const dur = vid.duration;
       const maxF = IS_MOBILE ? 40 : 100;
-
-      /* Mobile : frame stockée à la taille du rendu intermédiaire */
-      if (IS_MOBILE) {
-        MOB_W = Math.min(window.innerWidth, 390);
-        MOB_H = Math.round(Math.min(window.innerHeight, 844) * 0.65);
-      }
-
-      const maxW = IS_MOBILE ? MOB_W : Math.min(window.innerWidth, 960);
-      const maxH = IS_MOBILE ? MOB_H : Math.min(window.innerHeight, 540);
+      /* Mobile : même dimensions que le canvas JS (70 % de l'écran) */
+      const maxW = IS_MOBILE
+        ? Math.min(window.innerWidth, 390)
+        : Math.min(window.innerWidth, 960);
+      const maxH = IS_MOBILE
+        ? Math.round(Math.min(window.innerHeight, 844) * 0.70)
+        : Math.min(window.innerHeight, 540);
 
       const N    = Math.min(maxF, Math.max(1, Math.ceil(dur * (maxF / dur))));
       const step = dur / N;
@@ -1197,31 +1184,11 @@ function drawFrame(p) {
   lastFrameI = i;
   const f = frames[i];
   if (!f) return;
-
-  if (IS_MOBILE) {
-    /*
-     * La frame est stockée à MOB_W × MOB_H (ex. 390×549).
-     * On la dessine en pleine largeur, positionnée à 18 % du haut
-     * → rendu équilibré, ni trop zoomé ni trop petit.
-     */
-    ctx.fillStyle = '#030303';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const fW = f.width  || MOB_W;
-    const fH = f.height || MOB_H;
-    /* Scale pour remplir exactement la largeur du canvas */
-    const scale = canvas.width / fW;
-    const dW = canvas.width;
-    const dH = Math.round(fH * scale);
-    /* Positionner à 18 % du haut → légèrement au-dessus du centre */
-    const remainY = canvas.height - dH;
-    const dy = remainY > 0 ? Math.round(remainY * 0.18) : 0;
-    ctx.drawImage(f, 0, 0, fW, fH, 0, dy, dW, dH);
-  } else {
-    ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
-  }
+  /* Le canvas a déjà les bonnes dimensions (cover-croppé sans bandes) */
+  ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
 }
 
-/* Affiche la première frame dès qu'elle est disponible (avant la fin du chargement) */
+/* Affiche la première frame dès qu'elle est disponible */
 function drawFirstFrameIfReady() {
   if (frames[0] && lastFrameI === -1) {
     lastFrameI = -1;
